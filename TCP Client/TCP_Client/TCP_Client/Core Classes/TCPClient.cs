@@ -4,94 +4,68 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
-class TCPServer
+class TCPClient
 {
-    #region Definitions
-    private int BufferSize;
-    private TcpListener Listener;
+    private int BufferSize ;
     private TcpClient Client;
-    private int Port;
+    public byte StartByte;
+    public bool IsConnectedToServer = false;
     private string IP;
-    private byte StartByte;
-    public bool IsCLientConnected = false;
-    #endregion
+    private int Port;
 
-    public TCPServer(int port = 38000, string ip = "", int bufferSize = 1024 * 64, byte StartByte =(byte)'A')
+    public TCPClient(int port = 38000, string ip = "", int bufferSize = 1024 * 64, byte StartByte = (byte)'A')
     {
         this.Port = port;
         this.IP = ip;
         this.BufferSize = bufferSize;
         this.StartByte = StartByte;
     }
-    public string SetupServer()
+
+    /// <summary>
+    /// Connects to server with specified IP.
+    /// </summary>
+    /// <returns>Hostname of server</returns>
+    public string ConnectToServer()
     {
         try
         {
-            IPAddress localAddr = null;
-            if (string.IsNullOrEmpty(IP))
-            {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                foreach (var ip in host.AddressList)
-                {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        localAddr = ip;
-                    }
-                }
-            }
-            else
-            {
-                localAddr = IPAddress.Parse(IP);
-            }
-            Listener = new TcpListener(localAddr, Port);
-            Listener.Start();
-            IP =Listener.LocalEndpoint.ToString();
-            Debug.WriteLine("Server is ready");
-            return localAddr.ToString();
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine("Failed to Start Server!" +e.ToString());
-            return null;
-        }
-    }
-    public string StartListener()
-    {
-        try
-        {
-            if (Listener == null)
-                return null;
-            Debug.WriteLine("Listener is Started IP:  " + IP + "  Port: " + Port);
-            Client = Listener.AcceptTcpClient();        /// this Line is Blocking
-            IsCLientConnected = true;
-            IPEndPoint endPoint = (IPEndPoint)Client.Client.RemoteEndPoint;
-            var ipAddress = endPoint.Address;
+            Client = new TcpClient();           ///  create client object
+            Client.Connect(IP, Port);           /// Connect
+            IsConnectedToServer = true;
             Client.ReceiveBufferSize = BufferSize;
             Client.SendBufferSize = BufferSize;
-            Debug.WriteLine(ipAddress + " is connected");
-            return ipAddress.ToString();
+            Debug.WriteLine("Connected to: " + IP + " on Port: " + Port);
         }
         catch
         {
-            return null;
+            Debug.WriteLine("Connection failed!");
         }
+        var host = Dns.GetHostEntry(IP);
+        return host.HostName;
     }
-    public void CloseServer()
+    public bool DisconnectFromServer()
     {
-        try
+        bool success = false;
+        if (Client != null)
         {
-            if (Listener == null)
-                return;
-            Listener.Stop();
-            IsCLientConnected = false;
-            Listener = null;
+            try
+            {
+                Client.Close();
+                Client.Dispose();           /// remove client object
+                IsConnectedToServer = false;
+                Client = null;
+                Debug.WriteLine("Disconnected!");
+                success = true;
+            }
+            catch
+            {
+
+                Debug.WriteLine("Failed to Disconnect!");
+            }
         }
-        catch(Exception e)
-        {
-            Debug.WriteLine("Failed to Stop server! : " + e.ToString());
-        }
+        return success;
     }
-    public bool SendDataToClient(byte[] data)
+    public bool SendDataServer(byte[] data)
     {
         bool success = false;
         byte[] headerBytes = PrepareDataHeader(data.Length);
@@ -129,42 +103,41 @@ class TCPServer
                     success = true;
                 }
             }
-            else 
+            else
                 success = false;
             return success;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.WriteLine("Unable to send message to client!" + e.ToString());
-            IsCLientConnected = false;
+            IsConnectedToServer = false;
             Client.Close();
             Client = null;
-            StartListener();
             return false;
         }
     }
+    /// <summary>
+    /// Gets Data from server and retuns byte array as fuction code, in first byte, and data
+    /// </summary>
+    /// <returns></returns>
     public byte[] GetData()
     {
         try
         {
             if (Client == null)
-            {
-                Debug.WriteLine("Client Was null");
                 return null;
-            }
-
             NetworkStream stream = Client.GetStream();
             byte[] tempData = new byte[BufferSize];
             byte[] dataHeader = new byte[5];
-            using (MemoryStream ms= new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
                 int numBytesRead = 0;
                 int TotalBytesReceived = 0;
                 bool isFirstsSampleReceived = false;
                 int DataLength = 0;
-                while(true)
+                while (true)
                 {
-                    if(!isFirstsSampleReceived)
+                    if (!isFirstsSampleReceived)
                     {
                         numBytesRead = stream.Read(dataHeader, 0, dataHeader.Length);
                         if (numBytesRead == dataHeader.Length)
@@ -179,16 +152,17 @@ class TCPServer
                     }
                     else
                     {
-                        if(DataLength<BufferSize)
+                        if (DataLength < BufferSize)
                         {
                             numBytesRead = stream.Read(tempData, 0, DataLength);
                             TotalBytesReceived += numBytesRead;
                             ms.Write(tempData, 0, numBytesRead);
+                           
                         }
                         else
                         {
                             int len = BufferSize;
-                            while(TotalBytesReceived<DataLength)
+                            while (TotalBytesReceived < DataLength)
                             {
                                 numBytesRead = stream.Read(tempData, 0, len);
                                 TotalBytesReceived += numBytesRead;
@@ -196,9 +170,9 @@ class TCPServer
                                 len = Math.Min(DataLength - TotalBytesReceived, BufferSize);
                             }
                         }
-                    }
-                    if (TotalBytesReceived >= DataLength)
-                        break;
+                        if (TotalBytesReceived >= DataLength)
+                            break;
+                    }                    
                 }
                 if (TotalBytesReceived == DataLength)
                 {
@@ -212,13 +186,14 @@ class TCPServer
                 }
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.WriteLine("Failed to Receive Data From Client! :" + e.ToString());
-            IsCLientConnected = false;
+            IsConnectedToServer = false;
+            if (Client == null)
+                return null;
             Client.Close();
             Client = null;
-            StartListener();
             return null;
         }
     }

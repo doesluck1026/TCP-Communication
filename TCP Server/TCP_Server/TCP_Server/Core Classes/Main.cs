@@ -12,7 +12,19 @@ class Main
     #region Public Variables
     public string ServerIP;
     public string ClientIP;
-
+    public bool IsClientConnected
+    {
+        get
+        {
+            lock (Lck_IsClientConnected)
+                return _isClientConnected;
+        }
+        private set
+        {
+            lock (Lck_IsClientConnected)
+                _isClientConnected = value;
+        }
+    }
     public Color LedColor
     {
         get
@@ -46,7 +58,7 @@ class Main
             lock (Lck_TargetPosition)
                 return _targetPosition;
         }
-        private set
+        set
         {
             lock (Lck_TargetPosition)
                 _targetPosition = value;
@@ -56,10 +68,12 @@ class Main
     private Color _ledColor;
     private string _clientMessage;
     private int _targetPosition;
-
+    private bool _isClientConnected;
+    
     private object Lck_LedColor = new object();
     private object Lck_ClientMessage = new object();
     private object Lck_TargetPosition = new object();
+    private object Lck_IsClientConnected = new object();
     #endregion
 
     #region Parameters 
@@ -129,7 +143,7 @@ class Main
         {
             SendClientData();
             GetClientData();
-
+            IsClientConnected = Server.IsCLientConnected;
             while (watch.Elapsed.TotalSeconds<CommunicationPeriod)
             {
                 Thread.Sleep(1);
@@ -150,7 +164,10 @@ class Main
     private void GetClientData()
     {
         byte[] data = Server.GetData();
-        AnalyzeReceivedData(data);
+        if(data!=null)
+            AnalyzeReceivedData(data);
+        else
+            IsClientConnected = false;
     }
     private void AnalyzeReceivedData(byte[] receivedData)
     {
@@ -159,9 +176,14 @@ class Main
         Array.Copy(receivedData, Index_LedColor, ColorBytes, 0, ColorBytes.Length);
         AssignLedColor(ColorBytes);
         int LenMessage = receivedData[Index_ClientMessage] | (receivedData[Index_ClientMessage + 1] << 8);
-        MessageBytes = new byte[LenMessage];
-        Array.Copy(receivedData, Index_ClientMessage + 2, MessageBytes, 0, LenMessage);
-        AssignMessage(MessageBytes);
+        if (LenMessage > 0)
+        {
+            MessageBytes = new byte[LenMessage];
+            Array.Copy(receivedData, Index_ClientMessage + 2, MessageBytes, 0, LenMessage);
+            AssignMessage(MessageBytes);
+        }
+        else
+            ClientMessage = "";
     }
     private void AssignLedColor(byte[] colorBytes)
     {

@@ -15,7 +15,7 @@
         <StackPanel Grid.Row="0" Margin="0,2,0,0" Orientation="Horizontal">
             <Label x:Name="lbl_Led" Margin="10" Width="100" Height="100" Background="Black" Content=""/>
             <Border BorderThickness="2" Width="350" Height="100" BorderBrush="LightBlue">
-                <TextBlock x:Name="txt_ClientMessage" Width="350" Height="100" />
+                <TextBlock x:Name="txt_ClientMessage" Width="350" Height="100" TextWrapping="Wrap"  />
             </Border>
             <Slider x:Name="sld_TargetPosition" Margin="10" Orientation="Vertical" Minimum="0" Maximum="100" Height="140" Background="AliceBlue" />
         </StackPanel>

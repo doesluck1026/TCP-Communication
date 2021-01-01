@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TCP_Server
+namespace TCP_Client
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -31,9 +31,9 @@ namespace TCP_Server
             InitializeComponent();
         }
 
-        private void btn_StartServer_Click(object sender, RoutedEventArgs e)
+        private void btn_Connect_Click(object sender, RoutedEventArgs e)
         {
-            main = new Main();
+            main = new Main(txt_ServerIP.Text);
             main.StartCommunicationThread();
             StartUpdateTimer();
         }
@@ -43,16 +43,11 @@ namespace TCP_Server
                 return;
             Dispatcher.Invoke(() =>
             {
-                if (main.LedColor != null)
-                    lbl_Led.Background = new SolidColorBrush(main.LedColor);
-                if (!string.IsNullOrEmpty(main.ClientMessage))
-                    txt_ClientMessage.Text = main.ClientMessage;
-                else
-                    txt_ClientMessage.Text = "";
-                lbl_ClientIP.Content = main.ClientIP;
+                progressBar.Value = main.TargetPosition;
                 txt_ServerIP.Text = main.ServerIP;
-                main.TargetPosition = (int)sld_TargetPosition.Value;
-                if (main.IsClientConnected)
+                main.LedColor = Color.FromRgb((byte)sld_Red.Value, (byte)sld_Green.Value, (byte)sld_Blue.Value);
+                main.ClientMessage = txt_ClientMessage.Text;
+                if (main.IsConnectedToServer)
                     lbl_ConnectionStatus.Background = Brushes.Lime;
                 else
                     lbl_ConnectionStatus.Background = Brushes.Red;
@@ -60,12 +55,12 @@ namespace TCP_Server
         }
         private void StartUpdateTimer()
         {
-            UiUpdatePeriod = (int) (1000.0 / UiUpdateFrequency);
+            UiUpdatePeriod = (int)(1000.0 / UiUpdateFrequency);
             UIUpdateTimer = new Timer(Timer_Tick, null, 0, UiUpdatePeriod);
         }
         private void StopUpdateTimer()
         {
-            if(UIUpdateTimer!=null)
+            if (UIUpdateTimer != null)
             {
                 UIUpdateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 UIUpdateTimer.Dispose();
@@ -83,12 +78,11 @@ namespace TCP_Server
                 return;
             UIUpdateTimer.Change((int)Math.Max(0, UiUpdatePeriod - watch.ElapsedMilliseconds), UiUpdatePeriod);
         }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             StopUpdateTimer();
-            if(main!=null)
-             main.StopCommunication();
+            if (main != null)
+                main.StopCommunication();
             Environment.Exit(0);
         }
     }
