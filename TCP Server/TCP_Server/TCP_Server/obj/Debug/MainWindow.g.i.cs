@@ -41,7 +41,7 @@ namespace TCP_Server {
     public partial class MainWindow : System.Windows.Window, System.Windows.Markup.IComponentConnector {
         
         
-        #line 17 "..\..\MainWindow.xaml"
+        #line 16 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Label lbl_Led;
         
@@ -49,7 +49,7 @@ namespace TCP_Server {
         #line hidden
         
         
-        #line 19 "..\..\MainWindow.xaml"
+        #line 18 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBlock txt_ClientMessage;
         
@@ -57,7 +57,7 @@ namespace TCP_Server {
         #line hidden
         
         
-        #line 21 "..\..\MainWindow.xaml"
+        #line 20 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Slider sld_TargetPosition;
         
@@ -65,7 +65,7 @@ namespace TCP_Server {
         #line hidden
         
         
-        #line 25 "..\..\MainWindow.xaml"
+        #line 24 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox txt_ServerIP;
         
@@ -73,7 +73,7 @@ namespace TCP_Server {
         #line hidden
         
         
-        #line 26 "..\..\MainWindow.xaml"
+        #line 25 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Button btn_StartServer;
         
@@ -81,7 +81,7 @@ namespace TCP_Server {
         #line hidden
         
         
-        #line 28 "..\..\MainWindow.xaml"
+        #line 27 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Label lbl_ClientIP;
         
@@ -89,7 +89,7 @@ namespace TCP_Server {
         #line hidden
         
         
-        #line 29 "..\..\MainWindow.xaml"
+        #line 28 "..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Label lbl_ConnectionStatus;
         
@@ -133,12 +133,6 @@ namespace TCP_Server {
             
             #line default
             #line hidden
-            
-            #line 10 "..\..\MainWindow.xaml"
-            ((TCP_Server.MainWindow)(target)).Loaded += new System.Windows.RoutedEventHandler(this.Window_Loaded);
-            
-            #line default
-            #line hidden
             return;
             case 2:
             this.lbl_Led = ((System.Windows.Controls.Label)(target));
@@ -155,7 +149,7 @@ namespace TCP_Server {
             case 6:
             this.btn_StartServer = ((System.Windows.Controls.Button)(target));
             
-            #line 26 "..\..\MainWindow.xaml"
+            #line 25 "..\..\MainWindow.xaml"
             this.btn_StartServer.Click += new System.Windows.RoutedEventHandler(this.btn_StartServer_Click);
             
             #line default
