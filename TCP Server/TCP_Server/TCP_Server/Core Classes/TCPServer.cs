@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 class TCPServer
 {
@@ -80,6 +81,11 @@ class TCPServer
     {
         try
         {
+            if(Client!=null)
+            {
+                Client.Close();
+                Client = null;
+            }
             if (Listener == null)
                 return;
             Listener.Stop();
@@ -139,7 +145,7 @@ class TCPServer
             IsCLientConnected = false;
             Client.Close();
             Client = null;
-            StartListener();
+            var t = Task.Run(() => StartListener());
             return false;
         }
     }
@@ -149,7 +155,6 @@ class TCPServer
         {
             if (Client == null)
             {
-                Debug.WriteLine("Client Was null");
                 return null;
             }
 
@@ -216,9 +221,12 @@ class TCPServer
         {
             Debug.WriteLine("Failed to Receive Data From Client! :" + e.ToString());
             IsCLientConnected = false;
-            Client.Close();
-            Client = null;
-            StartListener();
+            if (Client != null)
+            {
+                Client.Close();
+                Client = null;
+            }
+            var t = Task.Run(() => StartListener());
             return null;
         }
     }

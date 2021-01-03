@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TCP_Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="250" Width="520"
+        Title="TCP Client" Height="250" Width="520"
         Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions >

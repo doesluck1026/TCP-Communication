@@ -33,9 +33,20 @@ namespace TCP_Server
 
         private void btn_StartServer_Click(object sender, RoutedEventArgs e)
         {
-            main = new Main();
-            main.StartCommunicationThread();
-            StartUpdateTimer();
+            if (main != null)
+            {
+                StopUpdateTimer();
+                btn_StartServer.Content = "Start Server";
+                main.StopCommunication();
+                main = null;
+            }
+            else
+            {
+                main = new Main();
+                main.StartCommunicationThread();
+                StartUpdateTimer();
+                btn_StartServer.Content = "Stop Server";
+            }
         }
         private void UpdateUI()
         {

@@ -33,9 +33,20 @@ namespace TCP_Client
 
         private void btn_Connect_Click(object sender, RoutedEventArgs e)
         {
-            main = new Main(txt_ServerIP.Text);
-            main.StartCommunicationThread();
-            StartUpdateTimer();
+            if (main != null)
+            {
+                StopUpdateTimer();
+                main.StopCommunication();
+                main = null;
+                btn_Connect.Content = "Connect";
+            }
+            else
+            {
+                main = new Main(txt_ServerIP.Text);
+                main.StartCommunicationThread();
+                StartUpdateTimer();
+                btn_Connect.Content = "Disconnect";
+            }
         }
         private void UpdateUI()
         {
@@ -50,7 +61,9 @@ namespace TCP_Client
                 if (main.IsConnectedToServer)
                     lbl_ConnectionStatus.Background = Brushes.Lime;
                 else
+                {
                     lbl_ConnectionStatus.Background = Brushes.Red;
+                }
             });
         }
         private void StartUpdateTimer()
