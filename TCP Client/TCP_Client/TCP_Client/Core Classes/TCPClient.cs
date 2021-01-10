@@ -29,19 +29,21 @@ class TCPClient
     {
         try
         {
-            Client = new TcpClient();           ///  create client object
-            Client.Connect(IP, Port);           /// Connect
+            Client = new TcpClient();
+            Client.Connect(IP, Port);
             IsConnectedToServer = true;
-            Client.ReceiveBufferSize = BufferSize;
             Client.SendBufferSize = BufferSize;
-            Debug.WriteLine("Connected to: " + IP + " on Port: " + Port);
+            Client.ReceiveBufferSize = BufferSize;
+            Debug.WriteLine("Succesfully Connected to: " + IP + " on Port: " + Port);
+            var host = Dns.GetHostEntry(IP);
+            return host.HostName;
         }
-        catch
+
+        catch (Exception e)
         {
-            Debug.WriteLine("Connection failed!");
+            Debug.WriteLine("Connection Failed: " + e.ToString());
+            return "";
         }
-        var host = Dns.GetHostEntry(IP);
-        return host.HostName;
     }
     public bool DisconnectFromServer()
     {
